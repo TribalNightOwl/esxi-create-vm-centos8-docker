@@ -1,0 +1,27 @@
+vmxfile: /vmfs/volumes/alldisks/centos8/centos8.vmx
+isofile: /vmfs/volumes/alldisks/iso/CentOS-8.2.2004-x86_64-minimal.iso
+
+esxi:
+  ipaddr: "192.168.1.200"
+  datastore: alldisks
+
+vm:
+  name: centos8
+  ipaddr: "192.168.1.204"
+  macaddr: "00:50:56:01:01:8A"
+  disk: sda
+
+dns:
+  domain: "example.com"
+  clusterid: "ocp4"
+  forwarder1: "8.8.8.8"
+  forwarder2: "8.8.4.4"
+
+dhcp:
+  router: "192.168.1.1"
+  bcast: "192.168.1.255"
+  netmask: "255.255.255.0"
+  poolstart: "192.168.1.210"
+  poolend: "192.168.1.230"
+  ipid: "192.168.1.0"
+  netmaskid: "255.255.255.0"

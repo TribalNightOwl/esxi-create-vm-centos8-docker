@@ -1,0 +1,2 @@
+TF_VAR_esxi_password=YOUR_PASSWORD_TO_ESXI_SERVER
+PUBSSHKEY='ssh-rsa AAAAB3NzaC1yc.....<Your public SSH key>'

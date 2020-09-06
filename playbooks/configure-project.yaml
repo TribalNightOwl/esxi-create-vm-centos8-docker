@@ -1,0 +1,44 @@
+---
+- hosts: localhost
+  tasks:
+  - include_vars:
+      file: vars.yaml
+
+  - name: Create a terraform directory
+    file:
+      path: ../terraform
+      state: directory
+      mode: '0755'
+  
+  - name: Create terraform main.tf file
+    template:
+      src: ../templates/main.tf.j2
+      dest: ../terraform/main.tf
+
+  - name: Create terraform vars.tf file
+    template:
+      src: ../templates/vars.tf.j2
+      dest: ../terraform/vars.tf
+
+  - name: Create kickstart file
+    template:
+      src: ../templates/ks.cfg.j2
+      dest: ../files/ks.cfg
+
+  - name: Add ssh key to kickstart file
+    lineinfile:
+      path: ../files/ks.cfg
+      line: "sshkey --username=root \"{{ ansible_env.PUBSSHKEY }}\""
+      insertafter: '^rootpw'
+      create: yes
+
+  - name: Create config script
+    template:
+      src: ../templates/config.sh.j2
+      dest: ../config.sh
+
+  - name: Create deployment script
+    template:
+      src: ../templates/deploy-vm.sh.j2
+      dest: ../deploy-vm.sh
+      mode: 0755

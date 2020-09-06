@@ -1,0 +1,5 @@
+.env
+files
+terraform
+config.sh
+deploy-vm.sh

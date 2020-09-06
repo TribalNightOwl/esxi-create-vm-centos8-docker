@@ -1,0 +1,23 @@
+variable "esxi_host" {
+    default = "{{ esxi.ipaddr }}"
+}
+
+variable "esxi_username" {
+    default = "root"
+}
+
+variable "esxi_password" {
+    default = "PASSWORD"
+}
+
+variable "datastore" {
+   default = "{{ esxi.datastore }}" 
+}
+
+variable "vswitch" {
+    default = "vSwitch0"
+}
+
+variable "home_network" {
+    default = "VM Network"
+}

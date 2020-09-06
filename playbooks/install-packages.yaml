@@ -1,0 +1,46 @@
+---
+- hosts: centos8
+  tasks:
+  - name: update all
+    dnf:
+      name: '*'
+      state: latest
+      update_cache: yes
+
+  - name: restart systemctl
+    systemd:
+      daemon_reexec: yes
+
+  - name: Install Docker CE
+    shell: |
+      yum install -y yum-utils
+      yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      yum install -y --nobest docker-ce docker-ce-cli containerd.io
+      systemctl start docker
+
+  - name: install packages
+    dnf:
+      name: 
+      - git
+      - tmux
+      state: latest
+      update_cache: yes
+
+  - name: Add the user01
+    user:
+      name: user01
+      shell: /bin/bash
+      groups: docker
+      append: yes
+
+  - name: Start and enable docker
+    service:
+      name: docker
+      state: started
+      enabled: True
+
+  - name: Stop and disable firewalld.
+    service:
+      name: firewalld
+      state: stopped
+      enabled: False

@@ -1,0 +1,33 @@
+#!/bin/bash
+set -e  # Exit on any error
+
+source config.sh
+
+echo Creating VMs in the ESXi server
+docker_run /files/terraform  "terraform init"
+docker_run /files/terraform  "terraform apply -auto-approve"
+
+echo Start web server to offer kickstart file
+KICKSTART_DIR=$(pwd)/files
+docker run --rm --name vm-nginx -v ${KICKSTART_DIR}:/usr/share/nginx/html:ro -p 80:80 -d nginx:1.19
+printf "\ncurl http://{{ ansible_default_ipv4["address"] }}/ks.cfg\n"
+
+echo Attaching ISO to VM and booting it
+docker_run /files "ansible-playbook playbooks/attach-iso-to-vm.yaml"
+
+printf "\n######  ATTENTION #######\n"
+printf "The VM's console will be opened\n"
+printf "Hit <TAB> to access the boot menu and boot with the following options:\n"
+printf "\n\n\nvmlinux initrd=initrd.img ks=http://{{ ansible_default_ipv4["address"] }}/ks.cfg\n\n\n"
+printf "Close the vmrc window after successful installation and rebooting the VM \n\n"
+BOOTSTRAPVM=$(ssh root@{{ esxi.ipaddr }} vim-cmd vmsvc/getallvms |grep {{ vm.name }} | cut -f1 -d ' ')
+vmrc --host={{ esxi.ipaddr }} --user=root --password=$TF_VAR_esxi_password --moid=$BOOTSTRAPVM
+
+echo Stopping web server
+docker stop vm-nginx
+
+echo Copy VM ssh host key to your known hosts file
+ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "{{ vm.ipaddr }}" || true
+ssh-keyscan -H {{ vm.ipaddr }} >> ${HOME}/.ssh/known_hosts
+
+docker_run /files "ansible-playbook playbooks/install-packages.yaml"
